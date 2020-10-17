@@ -23,4 +23,9 @@ public class MbgTest {
         MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
         myBatisGenerator.generate(null);
     }
+
+    int i  = 1+2;
+    int a  = 1+2;
+    int c  = 1+2;
+    int d  = 1+2;
 }
