@@ -2,13 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:te="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+         http://www.springframework.org/schema/tx
+         http://www.springframework.org/schema/tx/spring-tx.xsd">
     <!--开启组件扫描-->
     <context:component-scan base-package="com.crud">
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
@@ -19,37 +22,31 @@
     <!--引入外部properties配置文件-->
     <context:property-placeholder location="classpath:dbconfig.properties"/>
 
-    <!--配置c3p0连接池-->
-    <bean id="pooledDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
-        <property name="driverClass" value="${jdbc.driverClass}"></property>
-        <property name="user" value="${jdbc.user}"></property>
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="driverClassName" value="${jdbc.driverClassName}"></property>
+        <property name="username" value="${jdbc.username}"></property>
         <property name="password" value="${jdbc.password}"></property>
     </bean>
-
 
     <!--================================================================================-->
                                      <!--配置与mybatis的整合-->
 
-    <!--获取sqlSessionFactory对象-->
-    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <!--指定mybatis全局配置文件的位置-->
-        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
-        <!--指定数据源-->
-        <property name="dataSource" ref="pooledDataSource"></property>
-        <!--指定mybatis的mapper的文件位置，扫描mapper下的所有xml文件-->
-        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
     </bean>
-
-    <!--配置扫描器，将mybatis接口的实现加入ioc容器中-->
+    <!--5、扫描dao接口所在的包，生成代理实现类-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <!--扫描所有的dao接口的实现，加入到ioc容器中-->
-        <property name="basePackage" value="com.crud.dao"></property>
+        <property name="basePackage" value="com.crud.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean>
 
-    <!--配置一个可以执行批量的sqlSession-->
+<!--        配置一个可以执行批量的sqlSession   -->
     <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg name="sqlSessionFactory" ref="sessionFactory"></constructor-arg>
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
         <constructor-arg name="executorType" value="BATCH"></constructor-arg>
     </bean>
 
@@ -57,18 +54,18 @@
     <!--事务控制-->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <!--控制住数据源-->
-        <property name="dataSource" ref="pooledDataSource"></property>
+        <property name="dataSource" ref="dataSource"></property>
     </bean>
 
     <!--配置事务增强，事务如何切入-->
-    <te:advice id="txAdvice" transaction-manager="transactionManager">
-        <te:attributes>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
             <!-- *代表所有方法都是事务方法-->
-            <te:method name="*"/>
+            <tx:method name="*"/>
             <!--以get开始的所有方式-->
-            <te:method name="get*" read-only="true"/>
-        </te:attributes>
-    </te:advice>
+            <tx:method name="get*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
 
     <!--开启基于注解的事务，使用xml配置形式的事务（必须主要的都是使用配置式）-->
     <aop:config>
