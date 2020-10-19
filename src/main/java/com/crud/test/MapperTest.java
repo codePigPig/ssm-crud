@@ -74,24 +74,24 @@ public class MapperTest {
 //        System.out.println("success!!");
 
         //3、批量插入多个员工，批量插入可以执行批量操作的SqlSession
-        EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);
-        Random random = new Random();
-        String w = "W";
-        String m = "M";
-        String replace = "";
-
-        for (int i = 0; i < 1000; i++) {
-            String uuid = UUID.randomUUID().toString().substring(0, 5) + i;
-            int sum = random.nextInt(2) + 1;
-
-            if (random.nextInt(10) %2 != 0){
-                replace = m;
-            }else{
-                replace = w;
-            }
-
-            mapper.insertSelective(new Employee(null, uuid, replace, uuid + "@qq.com", sum));
-        }
+//        EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);
+//        Random random = new Random();
+//        String w = "W";
+//        String m = "M";
+//        String replace = "";
+//
+//        for (int i = 0; i < 1000; i++) {
+//            String uuid = UUID.randomUUID().toString().substring(0, 5) + i;
+//            int sum = random.nextInt(2) + 1;
+//
+//            if (random.nextInt(10) %2 != 0){
+//                replace = m;
+//            }else{
+//                replace = w;
+//            }
+//
+//            mapper.insertSelective(new Employee(null, uuid, replace, uuid + "@qq.com", sum));
+//        }
 
     }
 

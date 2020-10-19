@@ -35,13 +35,13 @@ public class Employee {
     }
 
     //查询员工的同学也查询部门信息
-    private Integer department;
+    private Department department;
 
-    public Integer getDepartment() {
+    public Department getDepartment() {
         return department;
     }
 
-    public void setDepartment(Integer department) {
+    public void setDepartment(Department department) {
         this.department = department;
     }
 
